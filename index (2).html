@@ -1,0 +1,1586 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plan Zajęć - Ratownictwo Medyczne II rok - Semestr Letni</title>
+    <style>
+        :root {
+            --color-bg-primary: #f8fafc;
+            --color-bg-secondary: #ffffff;
+            --color-text-primary: #1e293b;
+            --color-text-secondary: #64748b;
+            --color-primary: #0ea5e9;
+            --color-primary-hover: #0284c7;
+            --color-border: #e2e8f0;
+            --color-success: #10b981;
+            --color-warning: #f59e0b;
+            --color-danger: #ef4444;
+            --color-info: #8b5cf6;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --color-bg-primary: #0f172a;
+                --color-bg-secondary: #1e293b;
+                --color-text-primary: #f1f5f9;
+                --color-text-secondary: #cbd5e1;
+                --color-border: #334155;
+            }
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--color-bg-primary);
+            color: var(--color-text-primary);
+            line-height: 1.6;
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+
+        header {
+            background: var(--color-bg-secondary);
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        h1 { font-size: 24px; margin-bottom: 8px; color: var(--color-primary); }
+        .subtitle { color: var(--color-text-secondary); font-size: 14px; }
+
+        .search-section {
+            background: var(--color-bg-secondary);
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .search-box { position: relative; margin-bottom: 16px; }
+
+        #studentSearch {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--color-border);
+            border-radius: 8px;
+            font-size: 16px;
+            background: var(--color-bg-primary);
+            color: var(--color-text-primary);
+            transition: all 0.3s;
+        }
+
+        #studentSearch:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+        }
+
+        .suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--color-bg-secondary);
+            border: 2px solid var(--color-border);
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            max-height: 300px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            z-index: 100;
+            display: none;
+        }
+
+        .suggestions.active { display: block; }
+
+        .suggestion-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+            border-bottom: 1px solid var(--color-border);
+            -webkit-tap-highlight-color: rgba(0,0,0,0);
+        }
+
+        .suggestion-item:last-child { border-bottom: none; }
+        .suggestion-item:hover { background: var(--color-bg-primary); }
+
+        .student-info {
+            background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .student-info.active { display: block; }
+        .student-name { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
+        .student-groups { font-size: 14px; opacity: 0.9; }
+
+        .view-controls {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .view-btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px 20px;
+            border: 2px solid var(--color-border);
+            background: var(--color-bg-secondary);
+            color: var(--color-text-primary);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+            -webkit-tap-highlight-color: rgba(0,0,0,0);
+            touch-action: manipulation;
+        }
+
+        .view-btn:hover { border-color: var(--color-primary); background: var(--color-bg-primary); }
+        .view-btn.active { background: var(--color-primary); color: white; border-color: var(--color-primary); }
+
+        /* Starosta button special styling */
+        .view-btn[data-view="starosta"].active {
+            background: linear-gradient(135deg, #7c3aed, #5b21b6);
+            border-color: #7c3aed;
+        }
+        .view-btn[data-view="starosta"]:not(.active):hover {
+            border-color: #7c3aed;
+            color: #7c3aed;
+        }
+
+        .schedule-container {
+            background: var(--color-bg-secondary);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .schedule-container.active { display: block; }
+
+        .week-view { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+        .week-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        .week-table th {
+            background: var(--color-bg-primary);
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            border: 1px solid var(--color-border);
+            position: sticky;
+            top: 0;
+        }
+
+        .week-table td {
+            padding: 12px;
+            border: 1px solid var(--color-border);
+            vertical-align: top;
+        }
+
+        .class-item {
+            padding: 8px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            font-size: 13px;
+            border-left: 4px solid;
+        }
+
+        .class-item:last-child { margin-bottom: 0; }
+        .class-time { font-weight: 600; margin-bottom: 4px; }
+        .class-name { font-weight: 500; margin-bottom: 2px; }
+        .class-room { font-size: 12px; opacity: 0.8; }
+
+        .list-class-item {
+            background: var(--color-bg-primary);
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            border-left: 4px solid;
+        }
+
+        .today-view { max-width: 800px; margin: 0 auto; }
+
+        .today-header {
+            text-align: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--color-border);
+        }
+
+        .today-date { font-size: 24px; font-weight: 600; color: var(--color-primary); margin-bottom: 4px; }
+        .today-day { font-size: 16px; color: var(--color-text-secondary); }
+        .today-classes { display: grid; gap: 16px; }
+
+        .calendar-view { display: grid; gap: 24px; }
+
+        .month-section { background: var(--color-bg-primary); padding: 20px; border-radius: 8px; }
+
+        .month-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--color-primary);
+            text-align: center;
+        }
+
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+
+        .calendar-day-header {
+            text-align: center;
+            font-weight: 600;
+            padding: 8px;
+            font-size: 12px;
+            color: var(--color-text-secondary);
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            min-height: 50px;
+            border: 1px solid var(--color-border);
+            border-radius: 6px;
+            padding: 8px 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            -webkit-tap-highlight-color: rgba(0,0,0,0);
+        }
+
+        .calendar-day:hover { background: var(--color-bg-secondary); border-color: var(--color-primary); transform: scale(1.05); }
+        .calendar-day-number { font-weight: 600; margin-bottom: 2px; }
+        .calendar-day.has-classes { background: linear-gradient(135deg, var(--color-bg-secondary) 0%, var(--color-bg-primary) 100%); border-color: var(--color-primary); }
+        .calendar-day.today { background: var(--color-primary); color: white; }
+        .calendar-day.other-month { opacity: 0.3; }
+
+        .class-dots { display: flex; gap: 2px; flex-wrap: wrap; margin-top: 2px; }
+        .class-dot { width: 5px; height: 5px; border-radius: 50%; }
+
+        .class-dot.subject-medycyna { background: #ef4444; }
+        .class-dot.subject-chirurgia { background: #10b981; }
+        .class-dot.subject-pediatria { background: #f59e0b; }
+        .class-dot.subject-leki { background: #8b5cf6; }
+        .class-dot.subject-choroby { background: #06b6d4; }
+        .class-dot.subject-rozwoj { background: #ec4899; }
+        .class-dot.subject-neurochirugia { background: #6366f1; }
+        .class-dot.subject-jezyk { background: #14b8a6; }
+        .class-dot.subject-wf { background: #84cc16; }
+        .class-dot.subject-sztuki { background: #dc2626; }
+        .class-dot.subject-kurs { background: #f97316; }
+
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--color-text-secondary); }
+        .empty-icon { font-size: 48px; margin-bottom: 16px; }
+
+        /* Subject colors */
+        .subject-medycyna { border-color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+        .subject-chirurgia { border-color: #10b981; background: rgba(16, 185, 129, 0.1); }
+        .subject-pediatria { border-color: #f59e0b; background: rgba(245, 158, 11, 0.1); }
+        .subject-leki { border-color: #8b5cf6; background: rgba(139, 92, 246, 0.1); }
+        .subject-choroby { border-color: #06b6d4; background: rgba(6, 182, 212, 0.1); }
+        .subject-rozwoj { border-color: #ec4899; background: rgba(236, 72, 153, 0.1); }
+        .subject-neurochirugia { border-color: #6366f1; background: rgba(99, 102, 241, 0.1); }
+        .subject-jezyk { border-color: #14b8a6; background: rgba(20, 184, 166, 0.1); }
+        .subject-wf { border-color: #84cc16; background: rgba(132, 204, 22, 0.1); }
+        .subject-sztuki { border-color: #dc2626; background: rgba(220, 38, 38, 0.1); }
+        .subject-kurs { border-color: #f97316; background: rgba(249, 115, 22, 0.1); }
+
+        .legend {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+            margin-top: 24px;
+            padding: 20px;
+            background: var(--color-bg-primary);
+            border-radius: 8px;
+        }
+
+        .legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+        .legend-color { width: 20px; height: 20px; border-radius: 4px; border: 2px solid; }
+
+        .info-banner {
+            background: rgba(14, 165, 233, 0.1);
+            border: 1px solid var(--color-primary);
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 24px;
+            font-size: 13px;
+            color: var(--color-text-secondary);
+        }
+
+        .info-banner strong { color: var(--color-primary); }
+
+        /* ============ WIDOK STAROSTY ============ */
+
+        .starosta-view {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .starosta-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 24px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--color-border);
+        }
+
+        .starosta-title-block {}
+
+        .starosta-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #7c3aed;
+            margin-bottom: 4px;
+        }
+
+        .starosta-subtitle {
+            font-size: 14px;
+            color: var(--color-text-secondary);
+        }
+
+        .starosta-date-nav {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .starosta-nav-btn {
+            width: 40px;
+            height: 40px;
+            border: 2px solid var(--color-border);
+            background: var(--color-bg-secondary);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            color: var(--color-text-primary);
+            -webkit-tap-highlight-color: rgba(0,0,0,0);
+        }
+
+        .starosta-nav-btn:hover {
+            border-color: #7c3aed;
+            background: rgba(124, 58, 237, 0.08);
+        }
+
+        .starosta-current-date {
+            font-size: 16px;
+            font-weight: 600;
+            min-width: 200px;
+            text-align: center;
+            padding: 8px 16px;
+            background: rgba(124, 58, 237, 0.08);
+            border: 2px solid rgba(124, 58, 237, 0.3);
+            border-radius: 8px;
+            color: #7c3aed;
+        }
+
+        .starosta-today-btn {
+            padding: 8px 16px;
+            border: 2px solid #7c3aed;
+            background: transparent;
+            color: #7c3aed;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s;
+            -webkit-tap-highlight-color: rgba(0,0,0,0);
+        }
+
+        .starosta-today-btn:hover {
+            background: #7c3aed;
+            color: white;
+        }
+
+        .starosta-day-nav {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+
+        .starosta-day-btn {
+            flex-shrink: 0;
+            padding: 8px 14px;
+            border: 2px solid var(--color-border);
+            background: var(--color-bg-secondary);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
+            color: var(--color-text-secondary);
+            -webkit-tap-highlight-color: rgba(0,0,0,0);
+        }
+
+        .starosta-day-btn:hover {
+            border-color: #7c3aed;
+            color: #7c3aed;
+        }
+
+        .starosta-day-btn.active {
+            background: #7c3aed;
+            border-color: #7c3aed;
+            color: white;
+        }
+
+        .starosta-day-btn.has-classes {
+            border-color: rgba(124, 58, 237, 0.4);
+            color: #7c3aed;
+        }
+
+        .starosta-no-classes {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--color-text-secondary);
+        }
+
+        .starosta-no-classes .empty-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .starosta-groups-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .starosta-group-card {
+            background: var(--color-bg-primary);
+            border-radius: 12px;
+            border: 2px solid var(--color-border);
+            overflow: hidden;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .starosta-group-card:hover {
+            border-color: rgba(124, 58, 237, 0.4);
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.1);
+        }
+
+        .starosta-group-header {
+            padding: 14px 16px;
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.12), rgba(91, 33, 182, 0.08));
+            border-bottom: 1px solid var(--color-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .starosta-group-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: #7c3aed;
+        }
+
+        .starosta-group-count {
+            font-size: 12px;
+            color: var(--color-text-secondary);
+            background: var(--color-bg-secondary);
+            border-radius: 12px;
+            padding: 2px 8px;
+        }
+
+        .starosta-group-students {
+            padding: 10px 16px 0;
+            font-size: 12px;
+            color: var(--color-text-secondary);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        .starosta-student-tag {
+            background: var(--color-bg-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-size: 11px;
+            white-space: nowrap;
+        }
+
+        .starosta-classes-list {
+            padding: 12px;
+        }
+
+        .starosta-class-item {
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border-left: 4px solid;
+            position: relative;
+        }
+
+        .starosta-class-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .starosta-class-time {
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 3px;
+            opacity: 0.9;
+        }
+
+        .starosta-class-name {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .starosta-class-meta {
+            font-size: 11px;
+            opacity: 0.75;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .starosta-empty-group {
+            padding: 16px;
+            text-align: center;
+            color: var(--color-text-secondary);
+            font-size: 13px;
+            font-style: italic;
+        }
+
+        .starosta-week-indicator {
+            display: flex;
+            gap: 4px;
+            overflow-x: auto;
+            padding: 0 0 12px;
+            margin-bottom: 8px;
+        }
+
+        .starosta-week-day {
+            flex: 1;
+            min-width: 50px;
+            padding: 8px 4px;
+            text-align: center;
+            border-radius: 8px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+            -webkit-tap-highlight-color: rgba(0,0,0,0);
+        }
+
+        .starosta-week-day .wday-name {
+            font-weight: 600;
+            display: block;
+            color: var(--color-text-secondary);
+        }
+
+        .starosta-week-day .wday-num {
+            font-size: 16px;
+            font-weight: 700;
+            display: block;
+            margin: 2px 0;
+        }
+
+        .starosta-week-day .wday-dots {
+            display: flex;
+            justify-content: center;
+            gap: 2px;
+        }
+
+        .starosta-week-day .wdot {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: #7c3aed;
+        }
+
+        .starosta-week-day:hover {
+            border-color: rgba(124, 58, 237, 0.3);
+            background: rgba(124, 58, 237, 0.05);
+        }
+
+        .starosta-week-day.active {
+            background: rgba(124, 58, 237, 0.1);
+            border-color: #7c3aed;
+        }
+
+        .starosta-week-day.active .wday-name,
+        .starosta-week-day.active .wday-num {
+            color: #7c3aed;
+        }
+
+        .starosta-week-day.today-day .wday-num {
+            background: #7c3aed;
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 2px auto;
+            font-size: 13px;
+        }
+
+        .starosta-week-nav {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .starosta-week-label {
+            flex: 1;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--color-text-secondary);
+        }
+
+        .starosta-summary-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .starosta-summary-item {
+            background: var(--color-bg-primary);
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            padding: 10px 16px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .starosta-summary-item strong {
+            color: #7c3aed;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 12px; }
+            h1 { font-size: 20px; }
+            .view-controls { flex-direction: column; }
+            .view-btn { min-width: 100%; }
+            .week-table { font-size: 12px; }
+            .legend { grid-template-columns: 1fr; }
+            .starosta-groups-grid { grid-template-columns: 1fr; }
+            .starosta-header { flex-direction: column; align-items: stretch; }
+            .starosta-date-nav { justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📅 Plan Zajęć - Ratownictwo Medyczne</h1>
+            <p class="subtitle">II rok studiów stacjonarnych I stopnia | Semestr letni 2025/2026 | PUM Szczecin</p>
+        </header>
+
+        <div class="info-banner">
+            <strong>ℹ️ Informacje:</strong> Teoria: 23.02.2026 - 26.06.2026 | Na zajęcia w CSM obowiązkowo obuwie zmienne | 
+            <strong style="color: #8b5cf6;">Kolor fioletowy</strong> = zajęcia w CSM (ul. Klonowica 50) | 
+            Zintegrowany kurs bezpieczeństwa: 15.06 - 26.06.2026
+        </div>
+
+        <div class="search-section" id="studentSearchSection">
+            <div class="search-box">
+                <input 
+                    type="text" 
+                    id="studentSearch" 
+                    placeholder="🔍 Wpisz imię i nazwisko studenta..."
+                    autocomplete="off"
+                >
+                <div class="suggestions" id="suggestions"></div>
+            </div>
+
+            <div class="student-info" id="studentInfo">
+                <div class="student-name" id="studentName"></div>
+                <div class="student-groups" id="studentGroups"></div>
+            </div>
+        </div>
+
+        <div class="view-controls" id="viewControls" style="display: none;">
+            <button class="view-btn active" data-view="week">📊 Widok tygodniowy</button>
+            <button class="view-btn" data-view="today">📅 Dzisiaj</button>
+            <button class="view-btn" data-view="calendar">📆 Kalendarz</button>
+            <button class="view-btn" data-view="starosta">👑 Widok starosty</button>
+        </div>
+
+        <!-- Starosta view - always visible toggle (no student required) -->
+        <div id="starostaViewControls" style="margin-bottom: 16px; display: none;">
+            <button class="view-btn" data-view="starosta" id="starostaQuickBtn" style="background: linear-gradient(135deg, #7c3aed, #5b21b6); color: white; border-color: #7c3aed;">
+                👑 Widok starosty -- wszystkie grupy
+            </button>
+        </div>
+
+        <div class="schedule-container active" id="weekView">
+            <div class="empty-state">
+                <div class="empty-icon">👤</div>
+                <h3>Wybierz studenta, aby wyświetlić plan zajęć</h3>
+                <p>Zacznij wpisywać imię i nazwisko w polu powyżej</p>
+            </div>
+        </div>
+
+        <div class="schedule-container" id="todayView">
+            <div class="today-view"></div>
+        </div>
+
+        <div class="schedule-container" id="calendarView">
+            <div class="calendar-view"></div>
+        </div>
+
+        <div class="schedule-container" id="starostaView">
+            <div class="starosta-view">
+                <!-- Rendered by JS -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===================== DANE STUDENTÓW =====================
+        const students = [
+            { name: 'Konarski Kacper', groups: { S: 'S1', kl: 'kl1', JW: 'JW1', num: '1', small: 'a', capital: 'A' }},
+            { name: 'Chrobak Maja', groups: { S: 'S1', kl: 'kl1', JW: 'JW1', num: '1', small: 'a', capital: 'A' }},
+            { name: 'Goluch Oskar', groups: { S: 'S1', kl: 'kl1', JW: 'JW1', num: '1', small: 'a', capital: 'A' }},
+            { name: 'Górnik Hubert', groups: { S: 'S1', kl: 'kl1', JW: 'JW1', num: '1', small: 'a', capital: 'A' }},
+            { name: 'Grabowska Wiktoria', groups: { S: 'S1', kl: 'kl1', JW: 'JW1', num: '1', small: 'a', capital: 'A' }},
+            { name: 'Grochowska Oliwia', groups: { S: 'S1', kl: 'kl1', JW: 'JW1', num: '1', small: 'a', capital: 'A' }},
+            { name: 'Harmoza Tomasz', groups: { S: 'S1', kl: 'kl2', JW: 'JW1', num: '1', small: 'a', capital: 'A' }},
+            { name: 'Kałużna Aleksandra', groups: { S: 'S1', kl: 'kl2', JW: 'JW1', num: '1', small: 'b', capital: 'A' }},
+            { name: 'Karlik Tymoteusz', groups: { S: 'S1', kl: 'kl2', JW: 'JW1', num: '1', small: 'b', capital: 'A' }},
+            { name: 'Wolski Piotr', groups: { S: 'S1', kl: 'kl2', JW: 'JW1', num: '1', small: 'b', capital: 'A' }},
+            { name: 'Korwin-Piotrowska Zuzanna', groups: { S: 'S1', kl: 'kl2', JW: 'JW1', num: '1', small: 'b', capital: 'A' }},
+            { name: 'Licznar Kacper', groups: { S: 'S1', kl: 'kl3', JW: 'JW1', num: '1', small: 'b', capital: 'B' }},
+            { name: 'Ludynia Artur', groups: { S: 'S1', kl: 'kl3', JW: 'JW1', num: '1', small: 'b', capital: 'B' }},
+            { name: 'Ładziak Nadia', groups: { S: 'S1', kl: 'kl3', JW: 'JW1', num: '1', small: 'b', capital: 'B' }},
+            { name: 'Mordak Maja', groups: { S: 'S1', kl: 'kl3', JW: 'JW1', num: '1', small: 'c', capital: 'B' }},
+            { name: 'Nowak Jakub', groups: { S: 'S1', kl: 'kl3', JW: 'JW1', num: '1', small: 'c', capital: 'B' }},
+            { name: 'Osuch Nicola', groups: { S: 'S1', kl: 'kl3', JW: 'JW1', num: '1', small: 'c', capital: 'B' }},
+            { name: 'Poszelężny Szymon', groups: { S: 'S1', kl: 'kl4', JW: 'JW2', num: '2', small: 'c', capital: 'B' }},
+            { name: 'Rusin Kaja', groups: { S: 'S1', kl: 'kl4', JW: 'JW2', num: '2', small: 'c', capital: 'B' }},
+            { name: 'Rybarczyk Adrian', groups: { S: 'S1', kl: 'kl4', JW: 'JW2', num: '2', small: 'c', capital: 'B' }},
+            { name: 'Sech Aleksander', groups: { S: 'S1', kl: 'kl4', JW: 'JW2', num: '2', small: 'c', capital: 'B' }},
+            { name: 'Szewczyk Piotr', groups: { S: 'S1', kl: 'kl4', JW: 'JW2', num: '2', small: 'd', capital: 'B' }},
+            { name: 'Walkowiak Antoni', groups: { S: 'S1', kl: 'kl4', JW: 'JW2', num: '2', small: 'd', capital: 'B' }},
+            { name: 'Wiórowski Hubert', groups: { S: 'S1', kl: 'kl5', JW: 'JW2', num: '2', small: 'd', capital: 'C' }},
+            { name: 'Wisiński Piotr', groups: { S: 'S1', kl: 'kl5', JW: 'JW2', num: '2', small: 'd', capital: 'C' }},
+            { name: 'Wiśniewski Bartosz', groups: { S: 'S1', kl: 'kl5', JW: 'JW2', num: '2', small: 'd', capital: 'C' }},
+            { name: 'Sobek Antoni', groups: { S: 'S1', kl: 'kl5', JW: 'JW2', num: '2', small: 'd', capital: 'C' }},
+            { name: 'Wodnicki Kacper', groups: { S: 'S1', kl: 'kl5', JW: 'JW2', num: '2', small: 'd', capital: 'C' }},
+            { name: 'Wróblewski Kacper', groups: { S: 'S1', kl: 'kl6', JW: 'JW2', num: '2', small: 'e', capital: 'C' }},
+            { name: 'Mądrzak Miłosz', groups: { S: 'S1', kl: 'kl6', JW: 'JW2', num: '2', small: 'e', capital: 'C' }},
+            { name: 'Mróz Dominik', groups: { S: 'S1', kl: 'kl6', JW: 'JW2', num: '2', small: 'e', capital: 'C' }},
+            { name: 'Ostaszewski Bartosz', groups: { S: 'S1', kl: 'kl6', JW: 'JW2', num: '2', small: 'e', capital: 'C' }},
+            { name: 'Domaradzka Olga', groups: { S: 'S1', kl: 'kl6', JW: 'JW2', num: '2', small: 'e', capital: 'C' }},
+            { name: 'Bębacz Natalia', groups: { S: 'S1', kl: 'kl6', JW: 'JW2', num: '2', small: 'e', capital: 'C' }},
+            { name: 'Bisek Lilia', groups: { S: null, kl: 'kl7', JW: null, num: null, small: null, capital: null }},
+            { name: 'Ochab Kornelia', groups: { S: null, kl: 'kl7', JW: null, num: null, small: null, capital: null }},
+            { name: 'Panek Maciej', groups: { S: null, kl: 'kl7', JW: null, num: null, small: null, capital: null }},
+            { name: 'Tórz Magdalena', groups: { S: null, kl: 'kl7', JW: null, num: null, small: null, capital: null }},
+            { name: 'Zacharonek-Jaczewski Maciej', groups: { S: null, kl: 'kl7', JW: null, num: null, small: null, capital: null }}
+        ];
+
+        // ===================== HARMONOGRAM ZAJĘĆ =====================
+        const schedule = [
+            // ===== WYKŁADY (cały rok / S1) =====
+            { day: 'Poniedziałek', time: '08:00-09:30', subject: 'Pediatria', group: 'W', room: 'Online', startDate: '2026-02-23', endDate: '2026-02-23' },
+            { day: 'Poniedziałek', time: '08:00-10:15', subject: 'Pediatria', group: 'W', room: 'Online', startDate: '2026-03-02', endDate: '2026-03-02' },
+            { day: 'Poniedziałek', time: '09:45-13:30', subject: 'Medycyna ratunkowa', group: 'W', room: 'Online', startDate: '2026-02-23', endDate: '2026-02-23' },
+            { day: 'Poniedziałek', time: '10:30-14:15', subject: 'Medycyna ratunkowa', group: 'W', room: 'Online', startDate: '2026-03-02', endDate: '2026-03-02' },
+            { day: 'Poniedziałek', time: '15:15-17:30', subject: 'Neurochirugia', group: 'W', room: 'Online', startDate: '2026-02-23', endDate: '2026-02-23' },
+            { day: 'Poniedziałek', time: '16:00-17:30', subject: 'Neurochirugia', group: 'W', room: 'Online', startDate: '2026-03-02', endDate: '2026-03-02' },
+
+            // Poniedziałek - seminaria (S1)
+            { day: 'Poniedziałek', time: '08:00-09:30', subject: 'Neurochirugia', group: 'S1', room: 'KN', startDate: '2026-03-09', endDate: '2026-04-13' },
+            { day: 'Poniedziałek', time: '10:00-11:30', subject: 'Pediatria', group: 'S1', room: 'WNZ 104', startDate: '2026-03-09', endDate: '2026-04-13' },
+            { day: 'Poniedziałek', time: '11:45-13:15', subject: 'Chirurgia', group: 'S1', room: 'WNZ 104', startDate: '2026-03-09', endDate: '2026-04-13' },
+            { day: 'Poniedziałek', time: '13:30-15:00', subject: 'Choroby wewnętrzne z elementami onkologii', group: 'S1', room: 'WNZ 209', startDate: '2026-03-09', endDate: '2026-04-13' },
+
+            // Poniedziałek - ćwiczenia kliniczne
+            { day: 'Poniedziałek', time: '08:00-11:45', subject: 'Chirurgia', group: 'kl3', room: 'KChOTiChW', startDate: '2026-04-20', endDate: '2026-04-27' },
+            { day: 'Poniedziałek', time: '12:00-15:45', subject: 'Chirurgia', group: 'kl4', room: 'KChOTiChW', startDate: '2026-04-20', endDate: '2026-04-27' },
+            { day: 'Poniedziałek', time: '08:00-11:45', subject: 'Pediatria', group: 'kl1', room: 'SOR (USK 1)', startDate: '2026-04-20', endDate: '2026-04-27' },
+            { day: 'Poniedziałek', time: '12:00-15:45', subject: 'Pediatria', group: 'kl2', room: 'SOR (USK 1)', startDate: '2026-04-20', endDate: '2026-04-27' },
+            { day: 'Poniedziałek', time: '08:00-11:45', subject: 'Neurochirugia', group: 'kl5', room: 'KN', startDate: '2026-04-20', endDate: '2026-04-27' },
+            { day: 'Poniedziałek', time: '12:00-15:45', subject: 'Neurochirugia', group: 'kl6', room: 'KN', startDate: '2026-04-20', endDate: '2026-04-27' },
+
+            // Poniedziałek - CSM
+            { day: 'Poniedziałek', time: '08:00-11:45', subject: 'Choroby wewnętrzne z elementami onkologii', group: 'B', room: 'CSM', startDate: '2026-05-04', endDate: '2026-05-11' },
+            { day: 'Poniedziałek', time: '12:00-15:45', subject: 'Choroby wewnętrzne z elementami onkologii', group: 'C', room: 'CSM', startDate: '2026-05-04', endDate: '2026-05-11' },
+            { day: 'Poniedziałek', time: '12:00-15:45', subject: 'Neurochirugia', group: 'B', room: 'CSM', startDate: '2026-05-04', endDate: '2026-05-11' },
+            { day: 'Poniedziałek', time: '08:00-11:45', subject: 'Neurochirugia', group: 'C', room: 'CSM', startDate: '2026-05-04', endDate: '2026-05-11' },
+            { day: 'Poniedziałek', time: '08:00-11:45', subject: 'Chirurgia', group: 'a.', room: 'CSM', startDate: '2026-05-04', endDate: '2026-05-11' },
+
+            // Poniedziałek - Medycyna ratunkowa CSM
+            { day: 'Poniedziałek', time: '08:00-11:45', subject: 'Medycyna ratunkowa', group: 'kl3', room: 'CSM', startDate: '2026-05-18', endDate: '2026-05-18' },
+            { day: 'Poniedziałek', time: '08:00-11:45', subject: 'Medycyna ratunkowa', group: 'kl3', room: 'CSM', startDate: '2026-06-01', endDate: '2026-06-01' },
+            { day: 'Poniedziałek', time: '08:00-11:45', subject: 'Medycyna ratunkowa', group: 'kl4', room: 'CSM', startDate: '2026-05-18', endDate: '2026-05-18' },
+            { day: 'Poniedziałek', time: '08:00-11:45', subject: 'Medycyna ratunkowa', group: 'kl4', room: 'CSM', startDate: '2026-06-01', endDate: '2026-06-01' },
+            { day: 'Poniedziałek', time: '12:00-15:45', subject: 'Medycyna ratunkowa', group: 'kl5', room: 'CSM', startDate: '2026-05-18', endDate: '2026-05-18' },
+            { day: 'Poniedziałek', time: '12:00-15:45', subject: 'Medycyna ratunkowa', group: 'kl5', room: 'CSM', startDate: '2026-06-01', endDate: '2026-06-01' },
+            { day: 'Poniedziałek', time: '12:00-15:45', subject: 'Medycyna ratunkowa', group: 'kl6', room: 'CSM', startDate: '2026-05-18', endDate: '2026-05-18' },
+            { day: 'Poniedziałek', time: '12:00-15:45', subject: 'Medycyna ratunkowa', group: 'kl6', room: 'CSM', startDate: '2026-06-01', endDate: '2026-06-01' },
+
+            // ===== WTOREK =====
+            { day: 'Wtorek', time: '09:45-12:00', subject: 'Wychowanie fizyczne', group: 'JW1', room: 'SWFiS', startDate: '2026-02-24', endDate: '2026-03-24' },
+            { day: 'Wtorek', time: '16:00-18:15', subject: 'Język obcy', group: 'JW2', room: 'SPNJO', startDate: '2026-02-24', endDate: '2026-05-05' },
+            { day: 'Wtorek', time: '08:00-11:45', subject: 'Sztuki walki', group: 'JW1', room: 'wskaże prowadzący', startDate: '2026-05-19', endDate: '2026-05-26' },
+            { day: 'Wtorek', time: '12:00-15:45', subject: 'Sztuki walki', group: 'JW2', room: 'wskaże prowadzący', startDate: '2026-05-19', endDate: '2026-05-26' },
+            { day: 'Wtorek', time: '12:45-16:30', subject: 'Leki w zawodzie ratownika medycznego', group: 'JW1', room: 'WNZ 104', startDate: '2026-02-24', endDate: '2026-03-03' },
+            { day: 'Wtorek', time: '08:45-12:30', subject: 'Leki w zawodzie ratownika medycznego', group: 'JW2', room: 'WNZ 104', startDate: '2026-02-24', endDate: '2026-03-03' },
+
+            // Wtorek - CSM
+            { day: 'Wtorek', time: '08:00-11:45', subject: 'Choroby wewnętrzne z elementami onkologii', group: 'A', room: 'CSM', startDate: '2026-05-05', endDate: '2026-05-12' },
+            { day: 'Wtorek', time: '12:00-15:45', subject: 'Pediatria', group: 'A', room: 'CSM', startDate: '2026-05-05', endDate: '2026-05-12' },
+            { day: 'Wtorek', time: '08:00-11:45', subject: 'Pediatria', group: 'B', room: 'CSM', startDate: '2026-05-05', endDate: '2026-05-12' },
+            { day: 'Wtorek', time: '08:00-11:45', subject: 'Medycyna ratunkowa', group: 'C', room: 'CSM', startDate: '2026-05-05', endDate: '2026-05-12' },
+
+            // Wtorek - kliniczne
+            { day: 'Wtorek', time: '12:00-15:45', subject: 'Chirurgia', group: 'kl1', room: 'KChOTiChW', startDate: '2026-04-21', endDate: '2026-04-28' },
+            { day: 'Wtorek', time: '08:00-11:45', subject: 'Chirurgia', group: 'kl2', room: 'KChOTiChW', startDate: '2026-04-21', endDate: '2026-04-28' },
+            { day: 'Wtorek', time: '12:00-15:45', subject: 'Choroby wewnętrzne z elementami onkologii', group: 'kl1', room: 'WNZ 106', startDate: '2026-03-31', endDate: '2026-04-14' },
+            { day: 'Wtorek', time: '08:00-11:45', subject: 'Choroby wewnętrzne z elementami onkologii', group: 'kl2', room: 'WNZ 106', startDate: '2026-03-31', endDate: '2026-04-14' },
+            { day: 'Wtorek', time: '08:00-11:45', subject: 'Pediatria', group: 'kl5', room: 'SOR (USK 1)', startDate: '2026-04-21', endDate: '2026-04-28' },
+            { day: 'Wtorek', time: '12:00-15:45', subject: 'Pediatria', group: 'kl6', room: 'SOR (USK 1)', startDate: '2026-04-21', endDate: '2026-04-28' },
+            { day: 'Wtorek', time: '12:00-15:45', subject: 'Neurochirugia', group: 'kl3', room: 'KN', startDate: '2026-04-21', endDate: '2026-04-28' },
+            { day: 'Wtorek', time: '08:00-11:45', subject: 'Neurochirugia', group: 'kl4', room: 'KN', startDate: '2026-04-21', endDate: '2026-04-28' },
+
+            // ===== ŚRODA =====
+            { day: 'Środa', time: '08:00-09:30', subject: 'Chirurgia', group: 'W', room: 'Online', startDate: '2026-02-25', endDate: '2026-03-25' },
+            { day: 'Środa', time: '09:45-11:15', subject: 'Choroby wewnętrzne z elementami onkologii', group: 'W', room: 'Online', startDate: '2026-02-25', endDate: '2026-03-25' },
+            { day: 'Środa', time: '12:00-15:45', subject: 'Rozwój osobisty w zawodzie ratownika medycznego', group: 'JW1', room: 'WNZ 209', startDate: '2026-05-20', endDate: '2026-05-27' },
+            { day: 'Środa', time: '08:00-11:45', subject: 'Rozwój osobisty w zawodzie ratownika medycznego', group: 'JW2', room: 'WNZ 209', startDate: '2026-05-20', endDate: '2026-05-27' },
+
+            // Środa - CSM
+            { day: 'Środa', time: '08:00-11:45', subject: 'Pediatria', group: 'C', room: 'CSM', startDate: '2026-05-06', endDate: '2026-05-13' },
+            { day: 'Środa', time: '08:00-11:45', subject: 'Neurochirugia', group: 'A', room: 'CSM', startDate: '2026-05-06', endDate: '2026-05-13' },
+            { day: 'Środa', time: '12:00-15:45', subject: 'Medycyna ratunkowa', group: 'A', room: 'CSM', startDate: '2026-05-06', endDate: '2026-05-13' },
+            { day: 'Środa', time: '08:00-11:45', subject: 'Medycyna ratunkowa', group: 'B', room: 'CSM', startDate: '2026-05-06', endDate: '2026-05-13' },
+
+            // Środa - kliniczne
+            { day: 'Środa', time: '12:00-15:45', subject: 'Chirurgia', group: 'kl5', room: 'KChOTiChW', startDate: '2026-04-22', endDate: '2026-04-29' },
+            { day: 'Środa', time: '08:00-11:45', subject: 'Chirurgia', group: 'kl6', room: 'KChOTiChW', startDate: '2026-04-22', endDate: '2026-04-29' },
+            { day: 'Środa', time: '08:00-11:45', subject: 'Choroby wewnętrzne z elementami onkologii', group: 'kl3', room: 'WNZ 106', startDate: '2026-04-01', endDate: '2026-04-08' },
+            { day: 'Środa', time: '12:00-15:45', subject: 'Choroby wewnętrzne z elementami onkologii', group: 'kl4', room: 'WNZ 106', startDate: '2026-04-01', endDate: '2026-04-08' },
+            { day: 'Środa', time: '12:00-15:45', subject: 'Pediatria', group: 'kl3', room: 'SOR (USK 1)', startDate: '2026-04-22', endDate: '2026-04-29' },
+            { day: 'Środa', time: '08:00-11:45', subject: 'Pediatria', group: 'kl4', room: 'SOR (USK 1)', startDate: '2026-04-22', endDate: '2026-04-29' },
+            { day: 'Środa', time: '12:00-15:45', subject: 'Neurochirugia', group: 'kl1', room: 'KN', startDate: '2026-04-22', endDate: '2026-04-29' },
+            { day: 'Środa', time: '08:00-11:45', subject: 'Neurochirugia', group: 'kl2', room: 'KN', startDate: '2026-04-22', endDate: '2026-04-29' },
+
+            // ===== CZWARTEK =====
+            { day: 'Czwartek', time: '09:45-12:00', subject: 'Wychowanie fizyczne', group: 'JW2', room: 'SWFiS', startDate: '2026-02-26', endDate: '2026-03-26' },
+            { day: 'Czwartek', time: '16:00-18:15', subject: 'Język obcy', group: 'JW1', room: 'SPNJO', startDate: '2026-02-26', endDate: '2026-05-07' },
+
+            // Czwartek - CSM
+            { day: 'Czwartek', time: '08:00-11:45', subject: 'Chirurgia', group: 'b.', room: 'CSM', startDate: '2026-05-07', endDate: '2026-05-14' },
+            { day: 'Czwartek', time: '12:00-15:45', subject: 'Chirurgia', group: 'd.', room: 'CSM', startDate: '2026-05-07', endDate: '2026-05-14' },
+
+            // Czwartek - kliniczne
+            { day: 'Czwartek', time: '08:00-11:45', subject: 'Choroby wewnętrzne z elementami onkologii', group: 'kl5', room: 'WNZ 106', startDate: '2026-04-02', endDate: '2026-04-09' },
+            { day: 'Czwartek', time: '12:00-15:45', subject: 'Choroby wewnętrzne z elementami onkologii', group: 'kl6', room: 'WNZ 106', startDate: '2026-04-02', endDate: '2026-04-09' },
+            { day: 'Czwartek', time: '08:00-11:45', subject: 'Medycyna ratunkowa', group: 'kl1', room: 'CSM', startDate: '2026-02-26', endDate: '2026-06-11' },
+            { day: 'Czwartek', time: '08:00-11:45', subject: 'Medycyna ratunkowa', group: 'kl2', room: 'CSM', startDate: '2026-02-26', endDate: '2026-06-11' },
+            { day: 'Czwartek', time: '12:00-15:45', subject: 'Medycyna ratunkowa', group: 'kl7', room: 'CSM', startDate: '2026-02-26', endDate: '2026-06-11' },
+
+            // ===== PIĄTEK =====
+            { day: 'Piątek', time: '08:00-11:45', subject: 'Chirurgia', group: 'c.', room: 'CSM', startDate: '2026-05-08', endDate: '2026-05-08' },
+            { day: 'Piątek', time: '12:00-15:45', subject: 'Chirurgia', group: 'e.', room: 'CSM', startDate: '2026-05-08', endDate: '2026-05-15' },
+            { day: 'Piątek', time: '12:00-15:45', subject: 'Medycyna ratunkowa', group: 'kl3', room: 'CSM', startDate: '2026-02-27', endDate: '2026-06-12' },
+            { day: 'Piątek', time: '12:00-15:45', subject: 'Medycyna ratunkowa', group: 'kl4', room: 'CSM', startDate: '2026-02-27', endDate: '2026-06-12' },
+            { day: 'Piątek', time: '08:00-11:45', subject: 'Medycyna ratunkowa', group: 'kl5', room: 'CSM', startDate: '2026-02-27', endDate: '2026-06-12' },
+            { day: 'Piątek', time: '08:00-11:45', subject: 'Medycyna ratunkowa', group: 'kl6', room: 'CSM', startDate: '2026-02-27', endDate: '2026-06-12' }
+        ];
+
+        // ===================== STAROSTA: DEFINICJE GRUP =====================
+        // Wszystkie możliwe grupy z opisami i przypisanymi studentami
+        const GROUP_DEFS = [
+            { id: 'W',   label: 'Wszyscy (Wykłady)',  desc: 'Wykłady wspólne dla całego roku' },
+            { id: 'S1',  label: 'S1 -- Seminaria',     desc: 'Seminaria dla całego semestru' },
+            { id: 'JW1', label: 'JW1',                desc: 'Jezyk / WF grupa 1' },
+            { id: 'JW2', label: 'JW2',                desc: 'Jezyk / WF grupa 2' },
+            { id: 'kl1', label: 'kl1',                desc: 'Ćwiczenia kliniczne' },
+            { id: 'kl2', label: 'kl2',                desc: 'Ćwiczenia kliniczne' },
+            { id: 'kl3', label: 'kl3',                desc: 'Ćwiczenia kliniczne' },
+            { id: 'kl4', label: 'kl4',                desc: 'Ćwiczenia kliniczne' },
+            { id: 'kl5', label: 'kl5',                desc: 'Ćwiczenia kliniczne' },
+            { id: 'kl6', label: 'kl6',                desc: 'Ćwiczenia kliniczne' },
+            { id: 'kl7', label: 'kl7',                desc: 'Ćwiczenia kliniczne' },
+            { id: 'A',   label: 'Gr. A',              desc: 'Grupa A (CSM)' },
+            { id: 'B',   label: 'Gr. B',              desc: 'Grupa B (CSM)' },
+            { id: 'C',   label: 'Gr. C',              desc: 'Grupa C (CSM)' },
+            { id: 'a.',  label: 'Gr. a.',             desc: 'Podgrupa a' },
+            { id: 'b.',  label: 'Gr. b.',             desc: 'Podgrupa b' },
+            { id: 'c.',  label: 'Gr. c.',             desc: 'Podgrupa c' },
+            { id: 'd.',  label: 'Gr. d.',             desc: 'Podgrupa d' },
+            { id: 'e.',  label: 'Gr. e.',             desc: 'Podgrupa e' },
+        ];
+
+        // Mapowanie student → jakie grupy obsługuje (dla widoku starosty)
+        function getStudentGroups(student) {
+            const g = student.groups;
+            const groups = new Set();
+            if (g.S !== null) groups.add('W');
+            if (g.S)       groups.add(g.S);
+            if (g.kl)      groups.add(g.kl);
+            if (g.JW)      groups.add(g.JW);
+            if (g.capital) groups.add(g.capital);
+            if (g.small)   groups.add(g.small + '.');
+            return groups;
+        }
+
+        // Pobierz studentów należących do danej grupy
+        function getStudentsInGroup(groupId) {
+            return students.filter(s => {
+                const g = s.groups;
+                if (groupId === 'W') return g.S !== null;
+                if (groupId === g.S)       return true;
+                if (groupId === g.kl)      return true;
+                if (groupId === g.JW)      return true;
+                if (groupId === g.capital) return true;
+                if (g.small && groupId === g.small + '.') return true;
+                return false;
+            });
+        }
+
+        // ===================== LOGIKA APLIKACJI =====================
+        let currentStudent = null;
+        let currentView = 'week';
+
+        // Starosta state
+        let starostaDate = new Date();
+        starostaDate.setHours(0, 0, 0, 0);
+        let starostaWeekOffset = 0; // 0 = current week
+
+        const searchInput = document.getElementById('studentSearch');
+        const suggestionsBox = document.getElementById('suggestions');
+        const studentInfo = document.getElementById('studentInfo');
+        const viewControls = document.getElementById('viewControls');
+
+        function getSubjectClass(subject) {
+            const lower = subject.toLowerCase();
+            if (lower.includes('medycyna ratunkowa')) return 'subject-medycyna';
+            if (lower.includes('chirurgia'))          return 'subject-chirurgia';
+            if (lower.includes('pediatria'))          return 'subject-pediatria';
+            if (lower.includes('leki'))               return 'subject-leki';
+            if (lower.includes('choroby'))            return 'subject-choroby';
+            if (lower.includes('rozwój') || lower.includes('rozwoj')) return 'subject-rozwoj';
+            if (lower.includes('neurochirugia'))      return 'subject-neurochirugia';
+            if (lower.includes('język'))              return 'subject-jezyk';
+            if (lower.includes('wychowanie'))         return 'subject-wf';
+            if (lower.includes('sztuki'))             return 'subject-sztuki';
+            if (lower.includes('kurs') || lower.includes('bezpieczeństwa')) return 'subject-kurs';
+            return 'subject-medycyna';
+        }
+
+        function showSuggestions(query) {
+            const filtered = students.filter(s => s.name.toLowerCase().includes(query.toLowerCase()));
+            if (filtered.length === 0 || query === '') {
+                suggestionsBox.classList.remove('active');
+                return;
+            }
+            suggestionsBox.innerHTML = filtered.map(student => `
+                <div class="suggestion-item" data-student="${student.name}">${student.name}</div>
+            `).join('');
+            suggestionsBox.classList.add('active');
+            document.querySelectorAll('.suggestion-item').forEach(item => {
+                item.addEventListener('click', function() { selectStudent(this.dataset.student); });
+            });
+        }
+
+        function selectStudent(name) {
+            currentStudent = students.find(s => s.name === name);
+            searchInput.value = name;
+            suggestionsBox.classList.remove('active');
+
+            document.getElementById('studentName').textContent = currentStudent.name;
+
+            const g = currentStudent.groups;
+            const groupParts = [];
+            if (g.S)       groupParts.push(g.S);
+            if (g.kl)      groupParts.push(g.kl);
+            if (g.JW)      groupParts.push(g.JW);
+            if (g.num)     groupParts.push('gr. ' + g.num);
+            if (g.small)   groupParts.push(g.small);
+            if (g.capital) groupParts.push(g.capital);
+
+            document.getElementById('studentGroups').textContent = 'Grupy: ' + groupParts.join(', ');
+            studentInfo.classList.add('active');
+            viewControls.style.display = 'flex';
+
+            renderSchedule();
+        }
+
+        function parseISODate(dateStr) {
+            const [year, month, day] = dateStr.split('-').map(Number);
+            return new Date(year, month - 1, day);
+        }
+
+        function isClassActive(classItem, targetDate) {
+            const start = parseISODate(classItem.startDate);
+            const end   = parseISODate(classItem.endDate);
+            const target = new Date(targetDate);
+            [target, start, end].forEach(d => d.setHours(0, 0, 0, 0));
+            return target >= start && target <= end;
+        }
+
+        function studentHasClass(classItem, targetDate = null) {
+            const group = classItem.group;
+            const g = currentStudent.groups;
+            let hasGroup = false;
+
+            if (group === 'W') {
+                hasGroup = g.S !== null;
+            } else if (group === g.S || group === g.kl || group === g.JW || group === g.num) {
+                hasGroup = true;
+            } else if (group === g.capital) {
+                hasGroup = true;
+            } else if (group === g.small) {
+                hasGroup = true;
+            } else if (g.small && group === g.small + '.') {
+                hasGroup = true;
+            }
+
+            if (!hasGroup) return false;
+            if (!targetDate) return true;
+            return isClassActive(classItem, targetDate);
+        }
+
+        function formatDateRange(classItem) {
+            const start = parseISODate(classItem.startDate);
+            const end   = parseISODate(classItem.endDate);
+            const fmt   = d => d.getDate().toString().padStart(2, '0') + '.' + (d.getMonth() + 1).toString().padStart(2, '0') + '.' + d.getFullYear();
+            return classItem.startDate === classItem.endDate ? fmt(start) : fmt(start) + ' – ' + fmt(end);
+        }
+
+        function getTodayClasses() {
+            const today = new Date();
+            const dayNames = ['Niedziela','Poniedziałek','Wtorek','Środa','Czwartek','Piątek','Sobota'];
+            const todayName = dayNames[today.getDay()];
+            return schedule.filter(c => c.day === todayName && studentHasClass(c, today))
+                           .sort((a, b) => a.time.localeCompare(b.time));
+        }
+
+        function getClassesForDate(date) {
+            if (!currentStudent) return [];
+            const dayNames = ['Niedziela','Poniedziałek','Wtorek','Środa','Czwartek','Piątek','Sobota'];
+            const dayName = dayNames[date.getDay()];
+            return schedule.filter(c => c.day === dayName && studentHasClass(c, date));
+        }
+
+        function renderTodayView() {
+            const today = new Date();
+            const dayNames = ['Niedziela','Poniedziałek','Wtorek','Środa','Czwartek','Piątek','Sobota'];
+            const monthNames = ['stycznia','lutego','marca','kwietnia','maja','czerwca','lipca','sierpnia','września','października','listopada','grudnia'];
+            const todayClasses = getTodayClasses();
+            const todayView = document.getElementById('todayView').querySelector('.today-view');
+            const dateStr = `${today.getDate()} ${monthNames[today.getMonth()]} ${today.getFullYear()}`;
+            const dayStr  = dayNames[today.getDay()];
+
+            if (todayClasses.length === 0) {
+                todayView.innerHTML = `
+                    <div class="today-header"><div class="today-date">${dateStr}</div><div class="today-day">${dayStr}</div></div>
+                    <div class="empty-state"><div class="empty-icon">🎉</div><h3>Brak zajęć dzisiaj!</h3><p>Możesz odpocząć lub nadrobić zaległości</p></div>
+                `;
+                return;
+            }
+            todayView.innerHTML = `
+                <div class="today-header"><div class="today-date">${dateStr}</div><div class="today-day">${dayStr}</div></div>
+                <div class="today-classes">
+                    ${todayClasses.map(c => `
+                        <div class="list-class-item ${getSubjectClass(c.subject)}">
+                            <div class="class-time">🕐 ${c.time}</div>
+                            <div class="class-name"><strong>${c.subject}</strong></div>
+                            <div class="class-room">📍 ${c.room} | Grupa: ${c.group}</div>
+                            <div class="class-room">📅 ${formatDateRange(c)}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function renderDayView(selectedDate) {
+            const dayNames = ['Niedziela','Poniedziałek','Wtorek','Środa','Czwartek','Piątek','Sobota'];
+            const monthNames = ['stycznia','lutego','marca','kwietnia','maja','czerwca','lipca','sierpnia','września','października','listopada','grudnia'];
+            const date = new Date(selectedDate);
+            const dayClasses = getClassesForDate(date).sort((a, b) => a.time.localeCompare(b.time));
+            const todayView = document.getElementById('todayView').querySelector('.today-view');
+            const dateStr = `${date.getDate()} ${monthNames[date.getMonth()]} ${date.getFullYear()}`;
+            const dayStr  = dayNames[date.getDay()];
+
+            if (dayClasses.length === 0) {
+                todayView.innerHTML = `
+                    <div class="today-header"><div class="today-date">${dateStr}</div><div class="today-day">${dayStr}</div></div>
+                    <div class="empty-state"><div class="empty-icon">🎉</div><h3>Brak zajęć tego dnia!</h3><p>Dzień wolny od zajęć</p></div>
+                `;
+            } else {
+                todayView.innerHTML = `
+                    <div class="today-header"><div class="today-date">${dateStr}</div><div class="today-day">${dayStr}</div></div>
+                    <div class="today-classes">
+                        ${dayClasses.map(c => `
+                            <div class="list-class-item ${getSubjectClass(c.subject)}">
+                                <div class="class-time">🕐 ${c.time}</div>
+                                <div class="class-name"><strong>${c.subject}</strong></div>
+                                <div class="class-room">📍 ${c.room} | Grupa: ${c.group}</div>
+                                <div class="class-room">📅 ${formatDateRange(c)}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            currentView = 'today';
+            document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector('[data-view="today"]').classList.add('active');
+            document.querySelectorAll('.schedule-container').forEach(c => c.classList.remove('active'));
+            document.getElementById('todayView').classList.add('active');
+        }
+
+        function renderCalendarView() {
+            const calendarView = document.getElementById('calendarView').querySelector('.calendar-view');
+            if (!currentStudent) {
+                calendarView.innerHTML = '<div class="empty-state"><div class="empty-icon">📅</div><h3>Wybierz studenta</h3></div>';
+                return;
+            }
+            const months = [];
+            for (let m = 1; m <= 5; m++) months.push(new Date(2026, m, 1));
+
+            calendarView.innerHTML = `
+                <div style="margin-bottom: 20px; text-align: center; color: var(--color-text-secondary); font-size: 14px;">
+                    Kliknij na dzień, aby zobaczyć zajęcia
+                </div>
+                ${months.map(month => {
+                    const monthName = ['Styczeń','Luty','Marzec','Kwiecień','Maj','Czerwiec','Lipiec','Sierpień','Wrzesień','Październik','Listopad','Grudzień'][month.getMonth()];
+                    return `<div class="month-section"><div class="month-title">${monthName} ${month.getFullYear()}</div>${renderMonthGrid(month)}</div>`;
+                }).join('')}
+            `;
+        }
+
+        function renderMonthGrid(month) {
+            const firstDay = new Date(month.getFullYear(), month.getMonth(), 1);
+            const lastDay  = new Date(month.getFullYear(), month.getMonth() + 1, 0);
+            const today    = new Date(); today.setHours(0, 0, 0, 0);
+
+            let startDay = firstDay.getDay() - 1;
+            if (startDay === -1) startDay = 6;
+
+            const daysInMonth  = lastDay.getDate();
+            const prevMonthDays = new Date(month.getFullYear(), month.getMonth(), 0).getDate();
+
+            let html = '<div class="calendar-grid">';
+            ['Pon','Wt','Śr','Czw','Pt','Sob','Nie'].forEach(d => { html += `<div class="calendar-day-header">${d}</div>`; });
+
+            for (let i = startDay - 1; i >= 0; i--)
+                html += `<div class="calendar-day other-month"><div class="calendar-day-number">${prevMonthDays - i}</div></div>`;
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const date    = new Date(month.getFullYear(), month.getMonth(), day);
+                const classes = getClassesForDate(date);
+                const isToday = date.getTime() === today.getTime();
+                const classNames = ['calendar-day'];
+                if (isToday)           classNames.push('today');
+                if (classes.length > 0) classNames.push('has-classes');
+                const dots    = classes.slice(0, 6).map(c => `<div class="class-dot ${getSubjectClass(c.subject)}"></div>`).join('');
+                const dateStr = `${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2,'0')}-${day.toString().padStart(2,'0')}`;
+                html += `
+                    <div class="${classNames.join(' ')}" data-date="${dateStr}" title="${classes.map(c => c.subject).join(', ')}">
+                        <div class="calendar-day-number">${day}</div>
+                        ${classes.length > 0 ? `<div class="class-dots">${dots}</div>` : ''}
+                    </div>
+                `;
+            }
+
+            const remainingCells = 7 - ((startDay + daysInMonth) % 7);
+            if (remainingCells < 7)
+                for (let i = 1; i <= remainingCells; i++)
+                    html += `<div class="calendar-day other-month"><div class="calendar-day-number">${i}</div></div>`;
+
+            html += '</div>';
+            return html;
+        }
+
+        function getCurrentWeekDates() {
+            const today     = new Date();
+            const dayOfWeek = today.getDay();
+            const monday    = new Date(today);
+            monday.setDate(today.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
+            return Array.from({length: 5}, (_, i) => { const d = new Date(monday); d.setDate(monday.getDate() + i); return d; });
+        }
+
+        function generateGoogleStyleSchedule(scheduleByDay, days) {
+            const hours      = Array.from({length: 14}, (_, i) => i + 7);
+            const hourHeight = 60;
+
+            let html = '<div style="display: flex;">';
+            html += '<div style="width: 70px; flex-shrink: 0;">';
+            hours.forEach(hour => {
+                html += `<div style="height:${hourHeight}px;border-top:1px solid var(--color-border);padding:4px 8px;font-size:11px;color:var(--color-text-secondary);text-align:right;">${hour}:00</div>`;
+            });
+            html += '</div><div style="flex:1;display:flex;position:relative;">';
+
+            days.forEach(day => {
+                html += `<div style="flex:1;border-left:1px solid var(--color-border);position:relative;">`;
+                hours.forEach(() => { html += `<div style="height:${hourHeight}px;border-top:1px solid var(--color-border);"></div>`; });
+                scheduleByDay[day].forEach(classItem => {
+                    const [startTime, endTime] = classItem.time.split('-');
+                    const [sh, sm] = startTime.split(':').map(Number);
+                    const [eh, em] = endTime.split(':').map(Number);
+                    const startOffset = ((sh - 7) * hourHeight) + (sm / 60 * hourHeight);
+                    const duration    = ((eh - sh) * hourHeight) + ((em - sm) / 60 * hourHeight);
+                    html += `
+                        <div style="position:absolute;left:4px;right:4px;top:${startOffset}px;height:${duration}px;padding:6px;overflow:hidden;" class="class-item ${getSubjectClass(classItem.subject)}">
+                            <div style="font-weight:600;font-size:11px;margin-bottom:2px;">${classItem.time}</div>
+                            <div style="font-weight:500;font-size:12px;margin-bottom:2px;line-height:1.2;">${classItem.subject}</div>
+                            <div style="font-size:10px;opacity:0.9;">📍 ${classItem.room}</div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            });
+            html += '</div></div>';
+            return html;
+        }
+
+        function renderWeekView() {
+            const days        = ['Poniedziałek','Wtorek','Środa','Czwartek','Piątek'];
+            const currentWeek = getCurrentWeekDates();
+
+            const scheduleByDay = {};
+            days.forEach((day, index) => {
+                const dayDate = currentWeek[index];
+                scheduleByDay[day] = schedule.filter(c => c.day === day && studentHasClass(c, dayDate))
+                                             .sort((a, b) => a.time.localeCompare(b.time));
+            });
+
+            const weekView = document.getElementById('weekView');
+            weekView.innerHTML = `
+                <div class="week-view" style="overflow-x:auto;">
+                    <div style="min-width:900px;position:relative;">
+                        <div style="display:flex;border-bottom:2px solid var(--color-border);padding:12px 0;">
+                            <div style="width:80px;flex-shrink:0;font-weight:600;">Godzina</div>
+                            ${days.map((day, i) => `
+                                <div style="flex:1;text-align:center;font-weight:600;padding:0 8px;">
+                                    ${day}<br>
+                                    <span style="font-size:12px;color:var(--color-text-secondary);">
+                                        ${currentWeek[i].getDate()}.${(currentWeek[i].getMonth()+1).toString().padStart(2,'0')}
+                                    </span>
+                                </div>
+                            `).join('')}
+                        </div>
+                        ${generateGoogleStyleSchedule(scheduleByDay, days)}
+                    </div>
+                </div>
+                ${renderLegend()}
+            `;
+        }
+
+        function renderLegend() {
+            return `
+                <div class="legend">
+                    <h3 style="grid-column:1/-1;margin-bottom:8px;">Legenda kolorów:</h3>
+                    ${[
+                        ['subject-medycyna',    'Medycyna ratunkowa'],
+                        ['subject-chirurgia',   'Chirurgia'],
+                        ['subject-pediatria',   'Pediatria'],
+                        ['subject-leki',        'Leki w zawodzie ratownika'],
+                        ['subject-choroby',     'Choroby wewnętrzne'],
+                        ['subject-rozwoj',      'Rozwój osobisty'],
+                        ['subject-neurochirugia','Neurochirugia'],
+                        ['subject-jezyk',       'Język obcy'],
+                        ['subject-wf',          'WF'],
+                        ['subject-sztuki',      'Sztuki walki'],
+                    ].map(([cls, label]) => `
+                        <div class="legend-item">
+                            <div class="legend-color ${cls}"></div>
+                            <span>${label}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // ============================================================
+        // WIDOK STAROSTY
+        // ============================================================
+
+        // Zwraca wszystkie zajęcia dla danej grupy w danym dniu (niezależnie od studenta)
+        function getGroupClassesForDate(groupId, date) {
+            const dayNames = ['Niedziela','Poniedziałek','Wtorek','Środa','Czwartek','Piątek','Sobota'];
+            const dayName  = dayNames[date.getDay()];
+            return schedule.filter(c => {
+                if (c.day !== dayName) return false;
+                // sprawdź czy group pasuje
+                return c.group === groupId || (groupId === 'W' && c.group === 'W');
+            }).filter(c => isClassActive(c, date))
+              .sort((a, b) => a.time.localeCompare(b.time));
+        }
+
+        // Zwraca wszystkie grupy, które mają zajęcia w danym dniu
+        function getActiveGroupsForDate(date) {
+            const dayNames = ['Niedziela','Poniedziałek','Wtorek','Środa','Czwartek','Piątek','Sobota'];
+            const dayName  = dayNames[date.getDay()];
+            const activeGroupIds = new Set(
+                schedule
+                    .filter(c => c.day === dayName && isClassActive(c, date))
+                    .map(c => c.group)
+            );
+            return GROUP_DEFS.filter(g => activeGroupIds.has(g.id));
+        }
+
+        // Zwraca dni bieżącego tygodnia starosty (pon-pt) z offsetem
+        function getStarostaWeekDates() {
+            const base = new Date();
+            base.setHours(0, 0, 0, 0);
+            const dow   = base.getDay();
+            const monday = new Date(base);
+            monday.setDate(base.getDate() - (dow === 0 ? 6 : dow - 1) + starostaWeekOffset * 7);
+            return Array.from({length: 5}, (_, i) => {
+                const d = new Date(monday);
+                d.setDate(monday.getDate() + i);
+                return d;
+            });
+        }
+
+        function formatPolishDate(date) {
+            const dayNames   = ['Niedziela','Poniedziałek','Wtorek','Środa','Czwartek','Piątek','Sobota'];
+            const monthNames = ['stycznia','lutego','marca','kwietnia','maja','czerwca','lipca','sierpnia','września','października','listopada','grudnia'];
+            return `${dayNames[date.getDay()]}, ${date.getDate()} ${monthNames[date.getMonth()]} ${date.getFullYear()}`;
+        }
+
+        function formatShortDate(date) {
+            return `${date.getDate().toString().padStart(2,'0')}.${(date.getMonth()+1).toString().padStart(2,'0')}`;
+        }
+
+        function sameDay(a, b) {
+            return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+        }
+
+        function renderStarostaView() {
+            const container = document.getElementById('starostaView').querySelector('.starosta-view');
+            const today     = new Date(); today.setHours(0,0,0,0);
+            const weekDates = getStarostaWeekDates();
+
+            // Upewnij się, że starostaDate jest w aktualnym tygodniu (lub zostaw jak jest)
+            // Sprawdź czy starostaDate jest w tym tygodniu
+            const isInWeek = weekDates.some(d => sameDay(d, starostaDate));
+            if (!isInWeek) starostaDate = weekDates[0];
+
+            const activeGroups = getActiveGroupsForDate(starostaDate);
+            const dayName      = formatPolishDate(starostaDate);
+
+            // Policz łączną liczbę zajęć w tym dniu
+            let totalClasses = 0;
+            let totalStudents = new Set();
+            activeGroups.forEach(g => {
+                const classes = getGroupClassesForDate(g.id, starostaDate);
+                totalClasses += classes.length;
+                getStudentsInGroup(g.id).forEach(s => totalStudents.add(s.name));
+            });
+
+            // Buduj tydzień
+            const weekHtml = weekDates.map(date => {
+                const dayShort  = ['Nd','Pn','Wt','Śr','Cz','Pt','Sb'][date.getDay()];
+                const grps      = getActiveGroupsForDate(date);
+                const isActive  = sameDay(date, starostaDate);
+                const isToday   = sameDay(date, today);
+                const dotsCount = Math.min(grps.length, 5);
+                const dots      = Array(dotsCount).fill('<span class="wdot"></span>').join('');
+                return `
+                    <div class="starosta-week-day ${isActive ? 'active' : ''} ${isToday ? 'today-day' : ''}" 
+                         data-date="${date.getFullYear()}-${(date.getMonth()+1).toString().padStart(2,'0')}-${date.getDate().toString().padStart(2,'0')}">
+                        <span class="wday-name">${dayShort}</span>
+                        <span class="wday-num">${date.getDate()}</span>
+                        <span class="wday-dots">${dots}</span>
+                    </div>
+                `;
+            }).join('');
+
+            // Nagłówek tygodnia
+            const weekStart = weekDates[0];
+            const weekEnd   = weekDates[4];
+            const weekLabel = `${formatShortDate(weekStart)} – ${formatShortDate(weekEnd)}.${weekEnd.getFullYear()}`;
+
+            // Buduj karty grup
+            let groupCardsHtml = '';
+            if (activeGroups.length === 0) {
+                groupCardsHtml = `
+                    <div class="starosta-no-classes">
+                        <div class="empty-icon">🎉</div>
+                        <h3>Brak zajęć żadnej grupy</h3>
+                        <p>W tym dniu nie ma żadnych zajęć w harmonogramie.</p>
+                    </div>
+                `;
+            } else {
+                groupCardsHtml = `<div class="starosta-groups-grid">`;
+                activeGroups.forEach(groupDef => {
+                    const classes         = getGroupClassesForDate(groupDef.id, starostaDate);
+                    const studentsInGroup = getStudentsInGroup(groupDef.id);
+
+                    const studentTagsHtml = studentsInGroup.length > 0
+                        ? studentsInGroup.map(s => `<span class="starosta-student-tag">${s.name}</span>`).join('')
+                        : '<span style="font-style:italic;">Brak przypisanych studentów</span>';
+
+                    const classesHtml = classes.length > 0
+                        ? classes.map(c => `
+                            <div class="starosta-class-item ${getSubjectClass(c.subject)}">
+                                <div class="starosta-class-time">🕐 ${c.time}</div>
+                                <div class="starosta-class-name">${c.subject}</div>
+                                <div class="starosta-class-meta">
+                                    <span>📍 ${c.room}</span>
+                                </div>
+                            </div>
+                          `).join('')
+                        : '<div class="starosta-empty-group">Brak zajęć</div>';
+
+                    groupCardsHtml += `
+                        <div class="starosta-group-card">
+                            <div class="starosta-group-header">
+                                <div class="starosta-group-name">${groupDef.label}</div>
+                                <div class="starosta-group-count">${classes.length} zajęć · ${studentsInGroup.length} os.</div>
+                            </div>
+                            <div class="starosta-group-students">${studentTagsHtml}</div>
+                            <div class="starosta-classes-list">${classesHtml}</div>
+                        </div>
+                    `;
+                });
+                groupCardsHtml += `</div>`;
+            }
+
+            container.innerHTML = `
+                <div class="starosta-header">
+                    <div class="starosta-title-block">
+                        <div class="starosta-title">👑 Widok starosty</div>
+                        <div class="starosta-subtitle">Wszystkie grupy -- plan dnia dla całego roku</div>
+                    </div>
+                    <div class="starosta-date-nav">
+                        <button class="starosta-nav-btn" id="starostaPrevWeek">‹</button>
+                        <div class="starosta-current-date">${weekLabel}</div>
+                        <button class="starosta-nav-btn" id="starostaNextWeek">›</button>
+                        <button class="starosta-today-btn" id="starostaGoToday">Dziś</button>
+                    </div>
+                </div>
+
+                <div class="starosta-week-nav" style="display:none;"></div>
+
+                <div class="starosta-week-indicator" id="starostaWeekIndicator">
+                    ${weekHtml}
+                </div>
+
+                <div class="starosta-summary-bar">
+                    <div class="starosta-summary-item">
+                        <strong>${activeGroups.length}</strong>
+                        <span>grup ma zajęcia</span>
+                    </div>
+                    <div class="starosta-summary-item">
+                        <strong>${totalClasses}</strong>
+                        <span>wpisów w planie</span>
+                    </div>
+                    <div class="starosta-summary-item" style="flex:1;">
+                        <span>📅 <strong style="color:#7c3aed;font-size:14px;">${dayName}</strong></span>
+                    </div>
+                </div>
+
+                ${groupCardsHtml}
+            `;
+
+            // Bind week day clicks
+            document.querySelectorAll('.starosta-week-day:not(.other-month)').forEach(el => {
+                el.addEventListener('click', function() {
+                    const dateStr = this.dataset.date;
+                    if (dateStr) {
+                        starostaDate = parseISODate(dateStr);
+                        starostaDate.setHours(0,0,0,0);
+                        renderStarostaView();
+                    }
+                });
+            });
+
+            // Week navigation
+            document.getElementById('starostaPrevWeek').addEventListener('click', () => {
+                starostaWeekOffset--;
+                starostaDate = getStarostaWeekDates()[0];
+                renderStarostaView();
+            });
+            document.getElementById('starostaNextWeek').addEventListener('click', () => {
+                starostaWeekOffset++;
+                starostaDate = getStarostaWeekDates()[0];
+                renderStarostaView();
+            });
+            document.getElementById('starostaGoToday').addEventListener('click', () => {
+                starostaWeekOffset = 0;
+                starostaDate = new Date(); starostaDate.setHours(0,0,0,0);
+                renderStarostaView();
+            });
+        }
+
+        function renderSchedule() {
+            if (currentView === 'week')      renderWeekView();
+            else if (currentView === 'today')     renderTodayView();
+            else if (currentView === 'calendar')  renderCalendarView();
+            else if (currentView === 'starosta')  renderStarostaView();
+        }
+
+        // ===================== EVENT LISTENERS =====================
+        searchInput.addEventListener('input', function() { showSuggestions(this.value); });
+
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.search-box')) {
+                suggestionsBox.classList.remove('active');
+            }
+
+            if (e.target.closest('.calendar-day') && !e.target.closest('.other-month')) {
+                const dayElement = e.target.closest('.calendar-day');
+                const selectedDate = dayElement.dataset.date;
+                if (selectedDate) renderDayView(selectedDate);
+            }
+        });
+
+        document.querySelectorAll('.view-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                currentView = this.dataset.view;
+
+                document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+
+                document.querySelectorAll('.schedule-container').forEach(c => c.classList.remove('active'));
+                document.getElementById(currentView + 'View').classList.add('active');
+
+                if (currentView === 'starosta') {
+                    renderStarostaView();
+                } else if (currentStudent) {
+                    renderSchedule();
+                }
+            });
+        });
+
+        // Starosta view is accessible without selecting a student
+        // If starosta is clicked before student search, show it from empty weekView
+        // Initialize: make starosta quick button visible if no student selected
+        // (It's visible via view-controls once student selected)
+    </script>
+</body>
+</html>
